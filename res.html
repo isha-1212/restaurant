@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maison Nido · Modern Italian & Canadian Refuge</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        nido: {
+                            dark: '#0a0a0a',
+                            charcoal: '#141414',
+                            cream: '#f9f6f0',
+                            paper: '#f3efe6',
+                            gold: '#c5a059',
+                            'gold-light': '#dfc38a',
+                            amber: '#d48331',
+                            muted: '#8c857b'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::selection {
+            background-color: #c5a059;
+            color: #0a0a0a;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0a0a0a;
+            color: #f9f6f0;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        h1, h2, h3, h4, .font-editorial {
+            font-family: 'Cormorant Garamond', serif;
+        }
+        /* Custom Arch Mask Utility */
+        .arch-mask {
+            clip-path: ellipse(50% 50% at 50% 50%);
+            transition: clip-path 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .arch-shape {
+            border-radius: 999px 999px 0px 0px;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c5a059;
+            border-radius: 2px;
+        }
+
+        /* ---- Fixes ---- */
+        /* Missing keyframes used by the hero subtitle (it was stuck invisible) */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(1rem); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        /* CSS transitions must not fight scroll-scrubbed GSAP animations */
+        .anatomy-layer,
+        #liquid-fill {
+            transition: none !important;
+        }
+        /* Frost canvas always fills its container */
+        #frost-canvas {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="bg-nido-dark text-nido-cream selection:bg-nido-gold selection:text-nido-dark">
+
+    <!-- The Golden Strand ("The Nest") Progress Line -->
+    <svg id="golden-strand-svg" class="fixed inset-0 pointer-events-none z-50 w-full h-full" preserveAspectRatio="none">
+        <path id="strand-path" d="" fill="none" stroke="#c5a059" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
+    </svg>
+
+    <!-- Context Cursor -->
+    <div id="custom-cursor" class="fixed top-0 left-0 pointer-events-none z-[60] flex items-center justify-center opacity-0">
+        <div id="cursor-dot" class="w-3 h-3 bg-nido-gold rounded-full transition-all duration-300"></div>
+        <span id="cursor-text" class="absolute font-serif italic text-xs tracking-widest text-nido-dark bg-nido-gold px-3 py-1 rounded-full whitespace-nowrap shadow-lg opacity-0 scale-75 transition-all duration-300"></span>
+    </div>
+
+    <!-- Header / Navigation -->
+    <header id="site-header" class="fixed top-0 left-0 w-full z-40 px-6 md:px-12 py-6 flex items-center justify-between transition-all duration-700">
+        <div class="flex items-center gap-4">
+            <a href="#" id="wordmark-link" class="group flex items-center gap-3">
+                <span class="font-editorial text-2xl md:text-3xl tracking-wider uppercase font-light transition-all duration-700 flex items-center">
+                    <span id="wm-m" class="inline-block transition-transform duration-700">M</span><span id="wm-aison" class="inline-block transition-all duration-700 overflow-hidden max-w-[120px]">aison</span> 
+                    <span id="wm-n" class="inline-block ml-2 transition-transform duration-700">N</span><span id="wm-ido" class="inline-block transition-all duration-700 overflow-hidden max-w-[80px]">ido</span>
+                </span>
+            </a>
+            <div class="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-xs">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span id="live-time-status" class="tracking-wide text-nido-cream/90">Open tonight · 5:00 PM</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <button id="lang-toggle" class="text-xs uppercase tracking-widest hover:text-nido-gold transition-colors font-semibold">EN / FR</button>
+            <button id="menu-trigger" class="group flex items-center gap-3 px-4 py-2 rounded-full border border-current/20 hover:border-nido-gold transition-all duration-500">
+                <span class="text-xs uppercase tracking-widest font-medium">Menu</span>
+                <div class="w-6 h-4 flex flex-col justify-between cursor-pointer">
+                    <span class="w-full h-[1px] bg-current transition-transform group-hover:translate-x-1"></span>
+                    <span class="w-full h-[1px] bg-current"></span>
+                    <span class="w-full h-[1px] bg-current transition-transform group-hover:-translate-x-1"></span>
+                </div>
+            </button>
+        </div>
+    </header>
+
+    <!-- Full-Screen Curtain Menu Panel -->
+    <div id="curtain-menu" class="fixed inset-0 bg-nido-cream text-nido-dark z-50 flex flex-col justify-between px-8 md:px-20 py-12 transform -translate-y-full transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]">
+        <div class="flex justify-between items-center">
+            <span class="font-editorial text-2xl tracking-widest uppercase">Maison Nido</span>
+            <button id="menu-close" class="text-sm uppercase tracking-widest px-4 py-2 rounded-full border border-nido-dark/20 hover:bg-nido-dark hover:text-nido-cream transition-all">Close [×]</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-auto">
+            <nav class="flex flex-col gap-4 md:gap-6">
+                <a href="#story" class="menu-link group relative text-4xl md:text-6xl font-editorial tracking-tight overflow-hidden inline-block" data-en="Story" data-it="Storia">
+                    <span class="block transition-transform duration-500 group-hover:-translate-y-full">Story</span>
+                    <span class="absolute top-0 left-0 w-full h-full translate-y-full transition-transform duration-500 group-hover:translate-y-0 text-nido-gold italic">Storia</span>
+                </a>
+                <a href="#menu-section" class="menu-link group relative text-4xl md:text-6xl font-editorial tracking-tight overflow-hidden inline-block" data-en="Carta" data-it="Carta">
+                    <span class="block transition-transform duration-500 group-hover:-translate-y-full">Carta</span>
+                    <span class="absolute top-0 left-0 w-full h-full translate-y-full transition-transform duration-500 group-hover:translate-y-0 text-nido-gold italic">Carta</span>
+                </a>
+                <a href="#signatures" class="menu-link group relative text-4xl md:text-6xl font-editorial tracking-tight overflow-hidden inline-block" data-en="Signatures" data-it="Firme">
+                    <span class="block transition-transform duration-500 group-hover:-translate-y-full">Signatures</span>
+                    <span class="absolute top-0 left-0 w-full h-full translate-y-full transition-transform duration-500 group-hover:translate-y-0 text-nido-gold italic">Firme</span>
+                </a>
+                <a href="#bar" class="menu-link group relative text-4xl md:text-6xl font-editorial tracking-tight overflow-hidden inline-block" data-en="Bar & Vini" data-it="Bar & Vini">
+                    <span class="block transition-transform duration-500 group-hover:-translate-y-full">Bar & Vini</span>
+                    <span class="absolute top-0 left-0 w-full h-full translate-y-full transition-transform duration-500 group-hover:translate-y-0 text-nido-gold italic">Cantina</span>
+                </a>
+                <a href="#reservation" class="menu-link group relative text-4xl md:text-6xl font-editorial tracking-tight overflow-hidden inline-block" data-en="Reserve" data-it="Prenota">
+                    <span class="block transition-transform duration-500 group-hover:-translate-y-full">Reserve</span>
+                    <span class="absolute top-0 left-0 w-full h-full translate-y-full transition-transform duration-500 group-hover:translate-y-0 text-nido-gold italic">Prenota</span>
+                </a>
+            </nav>
+            <div class="flex flex-col justify-end text-sm text-nido-muted space-y-4">
+                <p class="font-editorial text-xl text-nido-dark">Toronto & Montreal Refuges</p>
+                <p>3 minutes from the nearest transit stop.<br>Complimentary coat check for Canadian winters.</p>
+                <p class="text-xs uppercase tracking-widest pt-4 text-nido-gold">© 2026 Maison Nido Hospitality Group</p>
+            </div>
+        </div>
+        <div class="flex justify-between items-end text-xs uppercase tracking-widest border-t border-nido-dark/10 pt-6">
+            <span>Modern Italian & Canadian Terroir</span>
+            <span>Est. MMXXIV</span>
+        </div>
+    </div>
+
+    <!-- Floating Trilingual Seal -->
+    <div id="floating-seal" class="fixed bottom-8 right-8 z-30 hidden md:flex items-center justify-center w-28 h-28 rounded-full border border-nido-gold/40 bg-nido-dark/80 backdrop-blur-md cursor-pointer transition-transform hover:scale-110 shadow-2xl">
+        <svg class="w-full h-full absolute animate-[spin_20s_linear_infinite]" viewBox="0 0 100 100">
+            <path id="circlePath" d="M 15, 50 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" fill="transparent"/>
+            <text class="text-[9px] uppercase tracking-[3px] fill-nido-gold font-semibold"><textPath href="#circlePath" startOffset="0%">RESERVE · PRENOTA · RÉSERVER · </textPath></text>
+        </svg>
+        <div class="w-8 h-8 rounded-full bg-nido-gold flex items-center justify-center text-nido-dark">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        </div>
+    </div>
+
+    <main id="main-content">
+        <!-- 2. Hero Section (The Frosted Window Concept) -->
+        <section id="hero" class="relative h-screen w-full bg-nido-dark">
+            <div class="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center">
+                <!-- Background Warm Dining Room Footage/Image -->
+                <div class="absolute inset-0 z-0">
+                    <img src="maison.jpg" alt="Maison Nido Interior" class="w-full h-full object-cover filter brightness-75 scale-105 transition-transform duration-1000" id="hero-bg-img" onerror="this.src='https://placehold.co/1920x1080/141414/c5a059?text=Maison+Nido+Interior'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-nido-dark via-transparent to-nido-dark/60"></div>
+                </div>
+
+                <!-- Frosted Window Canvas Overlay -->
+                <canvas id="frost-canvas" class="absolute inset-0 z-10 cursor-crosshair"></canvas>
+
+                <!-- Hero Content & Arch Mask Container -->
+                <div id="hero-content" class="relative z-20 text-center px-6 max-w-5xl mx-auto flex flex-col items-center justify-center h-full">
+                    <span class="text-xs md:text-sm uppercase tracking-[0.4em] text-nido-gold mb-6 opacity-0 translate-y-4 animate-[fadeIn_1s_ease_0.5s_forwards]" id="hero-sub">Modern Italian Refuge · Est. Toronto & Montreal</span>
+                    <h1 class="font-editorial text-5xl md:text-8xl lg:text-9xl font-light tracking-tight text-nido-cream uppercase mb-8" id="hero-title">
+                        <span class="inline-block transform transition-transform" id="hero-word-m">M</span><span class="inline-block">aison</span> 
+                        <span class="inline-block ml-4" id="hero-word-n">N</span><span class="inline-block">ido</span>
+                    </h1>
+                    <p class="font-serif italic text-xl md:text-2xl text-nido-cream/80 max-w-xl mx-auto mb-10 font-light">
+                        Where the warmth of an Italian kitchen meets the quiet shelter of Canadian winter.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                        <a href="#reservation" class="px-8 py-4 rounded-full bg-nido-gold text-nido-dark font-medium uppercase tracking-widest text-xs hover:bg-nido-gold-light transition-all shadow-xl flex items-center gap-3">
+                            <span>Reserve a Table</span>
+                            <span class="text-[10px] bg-nido-dark/10 px-2 py-0.5 rounded-full font-sans">Tonight: 3 left at 8:30</span>
+                        </a>
+                        <a href="#story" class="px-8 py-4 rounded-full border border-nido-cream/30 text-nido-cream font-medium uppercase tracking-widest text-xs hover:bg-nido-cream/10 transition-all">
+                            Explore Storia
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. About / Story Section -->
+        <section id="story" class="relative min-h-screen bg-nido-cream text-nido-dark py-32 px-6 md:px-16 overflow-hidden">
+            <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+                <!-- Left Pinned Statement -->
+                <div class="lg:col-span-7 flex flex-col justify-center">
+                    <span class="text-xs uppercase tracking-[0.3em] text-nido-gold mb-4 font-semibold">01 · La Storia</span>
+                    <h2 class="font-editorial text-4xl md:text-6xl lg:text-7xl leading-[1.15] font-light mb-8" id="ripening-paragraph">
+                        <span class="story-word opacity-30 transition-opacity duration-300">Nido</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300">means</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300">nest.</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300">The</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300 italic hover:text-nido-gold cursor-pointer" data-footnote="https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=400">pasta</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300 italic hover:text-nido-gold cursor-pointer" data-footnote="https://images.unsplash.com/photo-1546549032-9571cd6b27df?q=80&w=400">nest</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300">is</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300">our</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300">spine,</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300">crafted</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300">daily</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300">with</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300">Ontario</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300">flours,</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300">Italian</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300">heritage,</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300">and</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300">unwavering</span> 
+                        <span class="story-word opacity-30 transition-opacity duration-300">patience.</span>
+                    </h2>
+                    <div class="flex items-center gap-8 mt-6">
+                        <div>
+                            <span class="block font-editorial text-5xl md:text-6xl font-light text-nido-gold">24</span>
+                            <span class="text-xs uppercase tracking-widest text-nido-muted">Layers of Egg Tagliolini</span>
+                        </div>
+                        <div class="w-[1px] h-12 bg-nido-dark/20"></div>
+                        <div>
+                            <span class="block font-editorial text-5xl md:text-6xl font-light text-nido-gold">0°</span>
+                            <span class="text-xs uppercase tracking-widest text-nido-muted">Outside Canadian Frost</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Overlapping Prints -->
+                <div class="lg:col-span-5 relative flex flex-col items-center justify-center h-[500px]">
+                    <div class="absolute w-72 h-96 rounded-2xl overflow-hidden shadow-2xl transform -rotate-3 transition-transform hover:rotate-0 duration-500 bg-white p-3 pb-12">
+                        <img src="images/chef-prep.jpg" alt="Chef preparing pasta" class="w-full h-full object-cover rounded-xl" onerror="this.src='img1.jpg'">
+                        <p class="absolute bottom-3 left-4 font-editorial italic text-nido-dark text-sm">Chef's morning prep · Tavola 01</p>
+                    </div>
+                    <div class="absolute w-64 h-80 rounded-2xl overflow-hidden shadow-2xl transform translate-x-16 translate-y-24 rotate-6 transition-transform hover:rotate-0 duration-500 bg-white p-3 pb-12">
+<img src="images/tagliatelle-nest.jpg" alt="Fresh Tagliatelle Nido" class="w-full h-full object-cover rounded-xl" onerror="this.src='img2.jpg'">                        <p class="absolute bottom-3 left-4 font-editorial italic text-nido-dark text-sm">Nido di Tagliatelle</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Signatures Section -->
+        <section id="signatures" class="relative h-[400vh] bg-nido-charcoal text-nido-cream">
+            <div class="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center">
+                <div class="absolute top-12 left-12 z-20">
+                    <span class="text-xs uppercase tracking-[0.3em] text-nido-gold font-semibold">02 · Le Firme</span>
+                    <h2 class="font-editorial text-3xl md:text-5xl font-light mt-1">Signature Creations</h2>
+                </div>
+
+                <!-- Horizontal sliding track -->
+                <div id="signature-track" class="flex items-center gap-24 px-24 w-max h-full">
+                    <!-- Item 1 -->
+                    <div class="sig-item relative w-[80vw] md:w-[600px] h-[60vh] flex flex-col items-center justify-center group cursor-pointer" data-dish="Tagliatelle al Tartufo">
+                        <span class="absolute font-editorial text-[18vw] font-bold text-white/5 select-none pointer-events-none uppercase tracking-tighter">Tartufo</span>
+                        <div class="relative w-80 h-80 md:w-96 md:h-96 rounded-full overflow-hidden shadow-2xl border-4 border-nido-gold/30 transition-transform duration-700 group-hover:scale-105">
+                            <img src="img6.jpg" alt="Tagliatelle al Tartufo" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/800x800/141414/c5a059?text=Tartufo'">
+                        </div>
+                        <div class="mt-8 text-center">
+                            <div class="flex items-center justify-center gap-4 mb-2">
+                                <h3 class="font-editorial text-3xl md:text-4xl">Tagliatelle al Tartufo</h3>
+                                <span class="text-nido-gold font-editorial text-2xl">$48 CAD</span>
+                            </div>
+                            <p class="font-serif italic text-nido-cream/70 text-sm max-w-md">Black Umbrian truffle, 24-month Parmigiano Reggiano DOP, cultured Normandy butter.</p>
+                            <span class="inline-block mt-3 text-xs uppercase tracking-widest text-nido-gold bg-nido-gold/10 px-3 py-1 rounded-full">Pairs with: Barolo DOCG 2018</span>
+                        </div>
+                    </div>
+                    <!-- Item 2 -->
+                    <div class="sig-item relative w-[80vw] md:w-[600px] h-[60vh] flex flex-col items-center justify-center group cursor-pointer" data-dish="Burrata & Niagara Peaches">
+                        <span class="absolute font-editorial text-[18vw] font-bold text-white/5 select-none pointer-events-none uppercase tracking-tighter">Burrata</span>
+                        <div class="relative w-80 h-80 md:w-96 md:h-96 rounded-full overflow-hidden shadow-2xl border-4 border-nido-gold/30 transition-transform duration-700 group-hover:scale-105">
+                            <img src="https://images.unsplash.com/photo-1592417817098-8f3d691a4bf5?q=80&w=800&auto=format&fit=crop" alt="Burrata & Niagara Peaches" class="w-full h-full object-cover" onerror="this.src='burrata.jpg'">
+                        </div>
+                        <div class="mt-8 text-center">
+                            <div class="flex items-center justify-center gap-4 mb-2">
+                                <h3 class="font-editorial text-3xl md:text-4xl">Burrata & Niagara Peaches</h3>
+                                <span class="text-nido-gold font-editorial text-2xl">$32 CAD</span>
+                            </div>
+                            <p class="font-serif italic text-nido-cream/70 text-sm max-w-md">Pugliese burrata, grilled Niagara peaches in August, Saba reduction, torn basil.</p>
+                            <span class="inline-block mt-3 text-xs uppercase tracking-widest text-nido-gold bg-nido-gold/10 px-3 py-1 rounded-full">Pairs with: Niagara Riesling Vin Ice</span>
+                        </div>
+                    </div>
+                    <!-- Item 3 -->
+                    <div class="sig-item relative w-[80vw] md:w-[600px] h-[60vh] flex flex-col items-center justify-center group cursor-pointer" data-dish="Agnolotti del Plin">
+                        <span class="absolute font-editorial text-[18vw] font-bold text-white/5 select-none pointer-events-none uppercase tracking-tighter">Agnolotti</span>
+                        <div class="relative w-80 h-80 md:w-96 md:h-96 rounded-full overflow-hidden shadow-2xl border-4 border-nido-gold/30 transition-transform duration-700 group-hover:scale-105">
+                            <img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?q=80&w=800&auto=format&fit=crop" alt="Agnolotti del Plin" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/800x800/141414/c5a059?text=Agnolotti'">
+                        </div>
+                        <div class="mt-8 text-center">
+                            <div class="flex items-center justify-center gap-4 mb-2">
+                                <h3 class="font-editorial text-3xl md:text-4xl">Agnolotti del Plin</h3>
+                                <span class="text-nido-gold font-editorial text-2xl">$42 CAD</span>
+                            </div>
+                            <p class="font-serif italic text-nido-cream/70 text-sm max-w-md">Braised Quebec veal shank, roasted leek jus, crispy sage, Parmigiano broth.</p>
+                            <span class="inline-block mt-3 text-xs uppercase tracking-widest text-nido-gold bg-nido-gold/10 px-3 py-1 rounded-full">Pairs with: Chianti Classico Riserva</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Ingredients / "Anatomy of Perfection" Section -->
+        <section id="anatomy" class="relative h-[350vh] bg-nido-cream text-nido-dark">
+            <div class="sticky top-0 h-screen w-full flex flex-col items-center justify-center overflow-hidden px-6">
+                <div class="absolute top-12 left-12">
+                    <span class="text-xs uppercase tracking-[0.3em] text-nido-gold font-semibold">03 · Anatomy of Perfection</span>
+                    <h2 class="font-editorial text-3xl md:text-5xl font-light mt-1">Dissecting the Nido</h2>
+                </div>
+
+              <!-- Exploded Plate Container -->
+<div id="exploded-plate" class="relative w-full max-w-4xl h-[60vh] flex items-center justify-center">
+
+    <!-- Base Plate -->
+    <div class="anatomy-layer absolute w-72 h-72 md:w-96 md:h-96 rounded-full bg-white shadow-2xl border border-nido-dark/10 flex items-center justify-center transition-all duration-700" data-layer="0">
+        <span class="font-editorial text-nido-muted/40 text-xl">Ginori 1735 Porcelain</span>
+    </div>
+
+    <!-- Layer 1: Pasta Nest -->
+    <div class="anatomy-layer absolute w-64 h-64 md:w-80 md:h-80 rounded-full border-2 border-nido-gold/50 flex items-center justify-center transform -translate-y-12 transition-all duration-700" data-layer="1">
+
+        <img 
+            src="Pasta Nest.jpg" 
+            alt="Tagliolini nest" 
+            class="absolute inset-0 w-full h-full object-cover rounded-full"
+        >
+
+        <div class="absolute -top-10 -left-12 bg-white/90 backdrop-blur-md px-4 py-2 rounded-lg shadow-lg border border-nido-gold/20 text-xs">
+            <span class="text-nido-gold font-bold">01 / 05</span> · Tagliolini Nest
+            <p class="text-[10px] text-nido-muted">Ontario organic semolina & farm egg yolks</p>
+        </div>
+    </div>
+
+    <!-- Layer 2: Tomatoes -->
+    <div class="anatomy-layer absolute w-48 h-48 rounded-full flex items-center justify-center transform translate-x-32 -translate-y-20 transition-all duration-700" data-layer="2">
+
+        <img 
+            src="Tomatoes.jpg" 
+            alt="Tomatoes" 
+            class="absolute inset-0 w-full h-full object-cover rounded-full shadow-xl"
+        >
+
+        <div class="absolute top-0 right-[-160px] bg-white/90 backdrop-blur-md px-4 py-2 rounded-lg shadow-lg border border-nido-gold/20 text-xs w-48">
+            <span class="text-nido-gold font-bold">02 / 05</span> · San Marzano & Ontario
+            <p class="text-[10px] text-nido-muted">Picked at 3 PM, sweet with balanced acidity</p>
+        </div>
+    </div>
+
+    <!-- Layer 3: Basil & Cheese -->
+    <div class="anatomy-layer absolute w-36 h-36 rounded-full flex items-center justify-center transform -translate-x-36 translate-y-20 transition-all duration-700" data-layer="3">
+
+        <img 
+            src="Basil & Cheese.jpg" 
+            alt="Basil and cheese" 
+            class="absolute inset-0 w-full h-full object-cover rounded-full shadow-xl"
+        >
+
+        <div class="absolute bottom-0 left-[-160px] bg-white/90 backdrop-blur-md px-4 py-2 rounded-lg shadow-lg border border-nido-gold/20 text-xs w-48">
+            <span class="text-nido-gold font-bold">03 / 05</span> · Quebec Cheese & Basil
+            <p class="text-[10px] text-nido-muted">Quebec artisanal curds & fresh Genovese basil</p>
+        </div>
+    </div>
+
+    <!-- Layer 4: Olive Oil -->
+    <div class="anatomy-layer absolute w-24 h-24 rounded-full flex items-center justify-center transform translate-y-36 transition-all duration-700" data-layer="4">
+
+        <img 
+            src="Olive Oil.jpg" 
+            alt="Olive oil" 
+            class="absolute inset-0 w-full h-full object-cover rounded-full shadow-xl"
+        >
+
+        <div class="absolute bottom-[-60px] bg-white/90 backdrop-blur-md px-4 py-2 rounded-lg shadow-lg border border-nido-gold/20 text-xs text-center">
+            <span class="text-nido-gold font-bold">04 / 05</span> · Ligurian Cold-Pressed Oil
+        </div>
+    </div>
+
+</div>
+            </div>
+        </section>
+
+        <!-- 6. Menu Section (Carta on Heavy Paper) -->
+        <section id="menu-section" class="relative min-h-screen bg-nido-paper text-nido-dark py-32 px-6 md:px-20">
+            <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16">
+                <!-- Pinned Category Index -->
+                <div class="lg:col-span-4 lg:sticky lg:top-32 h-fit space-y-6">
+                    <span class="text-xs uppercase tracking-[0.3em] text-nido-gold font-semibold">04 · La Carta</span>
+                    <h2 class="font-editorial text-4xl md:text-6xl font-light">The Daily Menu</h2>
+                    <p class="font-serif italic text-nido-muted">Prepared fresh every afternoon. Prices in Canadian Dollars (CAD).</p>
+                    <div class="flex flex-col gap-3 pt-6 border-t border-nido-dark/10">
+                        <a href="#antipasti" class="menu-cat-btn font-editorial text-2xl hover:text-nido-gold transition-colors text-left flex items-center justify-between group">
+                            <span>Antipasti</span>
+                            <span class="text-xs font-sans uppercase tracking-widest text-nido-muted group-hover:text-nido-gold">01</span>
+                        </a>
+                        <a href="#primi" class="menu-cat-btn font-editorial text-2xl hover:text-nido-gold transition-colors text-left flex items-center justify-between group">
+                            <span>Primi Piatti</span>
+                            <span class="text-xs font-sans uppercase tracking-widest text-nido-muted group-hover:text-nido-gold">02</span>
+                        </a>
+                        <a href="#secondi" class="menu-cat-btn font-editorial text-2xl hover:text-nido-gold transition-colors text-left flex items-center justify-between group">
+                            <span>Secondi</span>
+                            <span class="text-xs font-sans uppercase tracking-widest text-nido-muted group-hover:text-nido-gold">03</span>
+                        </a>
+                        <a href="#dolci" class="menu-cat-btn font-editorial text-2xl hover:text-nido-gold transition-colors text-left flex items-center justify-between group">
+                            <span>Dolci & Digestivi</span>
+                            <span class="text-xs font-sans uppercase tracking-widest text-nido-muted group-hover:text-nido-gold">04</span>
+                        </a>
+                    </div>
+                    <div class="pt-6">
+                        <button id="toggle-pairings" class="px-6 py-3 rounded-full border border-nido-dark/30 text-xs uppercase tracking-widest hover:bg-nido-dark hover:text-nido-cream transition-all">
+                            Show Wine Pairings
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Menu Items List -->
+                <div class="lg:col-span-8 space-y-16">
+                    <!-- Antipasti -->
+                    <div id="antipasti" class="space-y-8">
+                        <h3 class="font-editorial text-3xl text-nido-gold border-b border-nido-dark/10 pb-4">Antipasti</h3>
+                        <div class="menu-row group cursor-pointer py-4 border-b border-nido-dark/5 transition-all hover:pl-4" data-img="https://images.unsplash.com/photo-1592417817098-8f3d691a4bf5?q=80&w=400">
+                            <div class="flex justify-between items-baseline">
+                                <span class="font-editorial text-2xl group-hover:text-nido-gold transition-colors">Carpaccio di Manzo</span>
+                                <div class="flex-1 border-b border-dotted border-nido-dark/30 mx-4"></div>
+                                <span class="font-editorial text-2xl">$28</span>
+                            </div>
+                            <p class="font-serif italic text-nido-muted text-sm mt-1">AAA Alberta beef tenderloin, cured egg yolk, caper berries, 30-month Parmigiano.</p>
+                            <span class="pairing-note text-xs text-nido-gold italic mt-1 hidden">Pairing: Valpolicella Ripasso Classico</span>
+                        </div>
+                        <div class="menu-row group cursor-pointer py-4 border-b border-nido-dark/5 transition-all hover:pl-4" data-img="https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=400">
+                            <div class="flex justify-between items-baseline">
+                                <span class="font-editorial text-2xl group-hover:text-nido-gold transition-colors">Carciofi alla Giudia</span>
+                                <div class="flex-1 border-b border-dotted border-nido-dark/30 mx-4"></div>
+                                <span class="font-editorial text-2xl">$24</span>
+                            </div>
+                            <p class="font-serif italic text-nido-muted text-sm mt-1">Crispy Roman artichokes, lemon aioli, fresh mint, cracked black pepper.</p>
+                            <span class="pairing-note text-xs text-nido-gold italic mt-1 hidden">Pairing: Fiano di Avellino DOCG</span>
+                        </div>
+                    </div>
+
+                    <!-- Primi Piatti -->
+                    <div id="primi" class="space-y-8">
+                        <h3 class="font-editorial text-3xl text-nido-gold border-b border-nido-dark/10 pb-4">Primi Piatti (Nido Handmade Pasta)</h3>
+                        <div class="menu-row group cursor-pointer py-4 border-b border-nido-dark/5 transition-all hover:pl-4" data-img="https://images.unsplash.com/photo-1546549032-9571cd6b27df?q=80&w=400">
+                            <div class="flex justify-between items-baseline">
+                                <span class="font-editorial text-2xl group-hover:text-nido-gold transition-colors">Tagliatelle al Tartufo</span>
+                                <div class="flex-1 border-b border-dotted border-nido-dark/30 mx-4"></div>
+                                <span class="font-editorial text-2xl">$48</span>
+                            </div>
+                            <p class="font-serif italic text-nido-muted text-sm mt-1">Black Umbrian truffle, 24-month Parmigiano Reggiano DOP, cultured Normandy butter.</p>
+                            <span class="pairing-note text-xs text-nido-gold italic mt-1 hidden">Pairing: Barolo DOCG 2018</span>
+                        </div>
+                        <div class="menu-row group cursor-pointer py-4 border-b border-nido-dark/5 transition-all hover:pl-4" data-img="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?q=80&w=400">
+                            <div class="flex justify-between items-baseline">
+                                <span class="font-editorial text-2xl group-hover:text-nido-gold transition-colors">Agnolotti del Plin</span>
+                                <div class="flex-1 border-b border-dotted border-nido-dark/30 mx-4"></div>
+                                <span class="font-editorial text-2xl">$42</span>
+                            </div>
+                            <p class="font-serif italic text-nido-muted text-sm mt-1">Braised Quebec veal shank, roasted leek jus, crispy sage, Parmigiano broth.</p>
+                            <span class="pairing-note text-xs text-nido-gold italic mt-1 hidden">Pairing: Chianti Classico Riserva</span>
+                        </div>
+                        <div class="menu-row group cursor-pointer py-4 border-b border-nido-dark/5 transition-all hover:pl-4" data-img="https://images.unsplash.com/photo-1621996346565-e3d5d6281298?q=80&w=400">
+                            <div class="flex justify-between items-baseline">
+                                <span class="font-editorial text-2xl group-hover:text-nido-gold transition-colors">Tagliolini al Limone di Amalfi</span>
+                                <div class="flex-1 border-b border-dotted border-nido-dark/30 mx-4"></div>
+                                <span class="font-editorial text-2xl">$36</span>
+                            </div>
+                            <p class="font-serif italic text-nido-muted text-sm mt-1">Amalfi lemon zest, 36-month Parmigiano cream, Sicilian pistachios, fresh basil oil.</p>
+                            <span class="pairing-note text-xs text-nido-gold italic mt-1 hidden">Pairing: Etna Bianco DOC</span>
+                        </div>
+                    </div>
+
+                    <!-- Secondi -->
+                    <div id="secondi" class="space-y-8">
+                        <h3 class="font-editorial text-3xl text-nido-gold border-b border-nido-dark/10 pb-4">Secondi</h3>
+                        <div class="menu-row group cursor-pointer py-4 border-b border-nido-dark/5 transition-all hover:pl-4" data-img="https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=400">
+                            <div class="flex justify-between items-baseline">
+                                <span class="font-editorial text-2xl group-hover:text-nido-gold transition-colors">Branzino al Forno</span>
+                                <div class="flex-1 border-b border-dotted border-nido-dark/30 mx-4"></div>
+                                <span class="font-editorial text-2xl">$54</span>
+                            </div>
+                            <p class="font-serif italic text-nido-muted text-sm mt-1">Whole Mediterranean sea bass baked in sea salt crust, fennel pollen, salmoriglio.</p>
+                            <span class="pairing-note text-xs text-nido-gold italic mt-1 hidden">Pairing: Vermentino di Sardegna</span>
+                        </div>
+                        <div class="menu-row group cursor-pointer py-4 border-b border-nido-dark/5 transition-all hover:pl-4" data-img="https://images.unsplash.com/photo-1558030006-450675393462?q=80&w=400">
+                            <div class="flex justify-between items-baseline">
+                                <span class="font-editorial text-2xl group-hover:text-nido-gold transition-colors">Bistecca alla Fiorentina</span>
+                                <div class="flex-1 border-b border-dotted border-nido-dark/30 mx-4"></div>
+                                <span class="font-editorial text-2xl">$145</span>
+                            </div>
+                            <p class="font-serif italic text-nido-muted text-sm mt-1">45-day dry-aged Ontario prime porterhouse (40oz), roasted garlic, rosemary oil.</p>
+                            <span class="pairing-note text-xs text-nido-gold italic mt-1 hidden">Pairing: Brunello di Montalcino DOCG</span>
+                        </div>
+                    </div>
+
+                    <!-- Dolci -->
+                    <div id="dolci" class="space-y-8">
+                        <h3 class="font-editorial text-3xl text-nido-gold border-b border-nido-dark/10 pb-4">Dolci & Digestivi</h3>
+                        <div class="menu-row group cursor-pointer py-4 border-b border-nido-dark/5 transition-all hover:pl-4" data-img="https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?q=80&w=400">
+                            <div class="flex justify-between items-baseline">
+                                <span class="font-editorial text-2xl group-hover:text-nido-gold transition-colors">Tiramisù della Casa</span>
+                                <div class="flex-1 border-b border-dotted border-nido-dark/30 mx-4"></div>
+                                <span class="font-editorial text-2xl">$18</span>
+                            </div>
+                            <p class="font-serif italic text-nido-muted text-sm mt-1">Savoiardi soaked in espresso and Montenegro amaro, mascarpone zabaglione, Valrhona cocoa.</p>
+                            <span class="pairing-note text-xs text-nido-gold italic mt-1 hidden">Pairing: Vin Santo del Chianti Classico</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. Bar & Drinks Section -->
+        <section id="bar" class="relative h-[300vh] bg-[#0c0b0a] text-nido-cream">
+            <div class="sticky top-0 h-screen w-full flex flex-col items-center justify-center overflow-hidden px-6">
+                <div class="absolute top-12 left-12 z-20">
+                    <span class="text-xs uppercase tracking-[0.3em] text-nido-amber font-semibold">05 · Il Bar & Cantina</span>
+                    <h2 class="font-editorial text-3xl md:text-5xl font-light mt-1">Aperitivo Hours & Cocktails</h2>
+                </div>
+
+                <!-- Cocktail Glass Filling Animation Container -->
+                <div class="relative z-10 flex flex-col md:flex-row items-center gap-16 max-w-5xl mx-auto w-full">
+                    <div class="flex-1 text-center md:text-left">
+                        <span id="drink-category" class="text-xs uppercase tracking-widest text-nido-amber font-semibold">Aperitivo Classico</span>
+                        <h3 id="drink-title" class="font-editorial text-5xl md:text-7xl font-light mt-2 mb-4">Negroni Nido</h3>
+                        <p id="drink-desc" class="font-serif italic text-nido-cream/70 max-w-md text-lg">Campari infused with local BC wild berries, Antica Formula vermouth, Dillon's unfiltered gin, orange twist.</p>
+                        <span class="inline-block mt-6 font-editorial text-2xl text-nido-amber">$24 CAD</span>
+                    </div>
+
+                    <!-- Cocktail Glass Graphic -->
+                    <div class="relative w-64 h-96 flex items-center justify-center">
+                        <div class="absolute inset-0 border-2 border-nido-amber/30 rounded-t-full rounded-b-xl flex flex-col justify-end overflow-hidden backdrop-blur-sm">
+                            <div id="liquid-fill" class="w-full h-1/2 bg-gradient-to-t from-red-900 to-amber-600 transition-all duration-700 relative">
+                                <div class="absolute top-0 w-full h-2 bg-amber-400 opacity-60 animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. Experience ("A Night at Nido") Section -->
+        <section id="experience" class="relative h-[350vh] bg-nido-dark text-nido-cream">
+    <div class="sticky top-0 h-screen w-full flex flex-col items-center justify-center overflow-hidden px-6">
+
+        <!-- Background images: one per timeline step, crossfaded while scrolling -->
+        <div id="experience-bg" class="absolute inset-0 z-0">
+            <img src="Golden hour aperitivo.jpg" alt="Golden hour aperitivo" class="exp-bg absolute inset-0 w-full h-full object-cover" onerror="this.src='https://placehold.co/1920x1080/141414/c5a059?text=5:30+PM'">
+            <img src="Antipasti at Nido.jpg" alt="Antipasti at Nido" class="exp-bg absolute inset-0 w-full h-full object-cover" onerror="this.src='https://placehold.co/1920x1080/141414/c5a059?text=7:00+PM'">
+            <img src="Handmade pasta service.jpg" alt="Handmade pasta service" class="exp-bg absolute inset-0 w-full h-full object-cover" onerror="this.src='https://placehold.co/1920x1080/141414/c5a059?text=8:30+PM'">
+            <img src="Digestivo by candlelight.jpg" alt="Digestivo by candlelight" class="exp-bg absolute inset-0 w-full h-full object-cover" onerror="this.src='https://placehold.co/1920x1080/141414/c5a059?text=11:00+PM'">
+            <!-- Dark overlay so the text stays readable -->
+            <div class="absolute inset-0 bg-black/55"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-nido-dark/70 via-transparent to-nido-dark/50"></div>
+        </div>
+
+        <div class="absolute top-12 left-12 z-20">
+            <span class="text-xs uppercase tracking-[0.3em] text-nido-gold font-semibold">06 · L'Esperienza</span>
+            <h2 class="font-editorial text-3xl md:text-5xl font-light mt-1 text-nido-cream">A Night at Nido</h2>
+        </div>
+
+        <!-- Timeline Arc Container -->
+        <div class="relative z-10 w-full max-w-4xl h-[60vh] flex flex-col items-center justify-center">
+            <div id="timeline-display" class="text-center space-y-6">
+                <span id="time-badge" class="px-4 py-1.5 rounded-full bg-nido-gold/20 text-nido-gold uppercase text-xs tracking-widest font-semibold">5:30 PM · Aperitivo</span>
+                <h3 id="time-title" class="font-editorial text-4xl md:text-7xl font-light text-nido-cream">The First Pour</h3>
+                <p id="time-desc" class="font-serif italic text-nido-cream/80 text-xl max-w-xl mx-auto">Sunsets over Toronto skyline, golden hour illumination warming the oak interior, the first negroni poured.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+        <!-- 9. Gallery / Moments at Nido -->
+        <section id="gallery" class="relative min-h-screen bg-nido-dark text-nido-cream py-32 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-6 mb-16">
+                <span class="text-xs uppercase tracking-[0.3em] text-nido-gold font-semibold">07 · Galleria</span>
+                <h2 class="font-editorial text-4xl md:text-6xl font-light mt-1">Moments at Nido</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 px-6 max-w-7xl mx-auto">
+                <div class="gallery-item relative h-[500px] rounded-2xl overflow-hidden group">
+                    <img src="img3.jpg" alt="Tavola 12" class="w-full h-full object-cover filter grayscale contrast-125 transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105" onerror="this.src='https://placehold.co/800x1000/141414/c5a059?text=Tavola+12'">
+                    <div class="absolute bottom-6 left-6 font-editorial italic text-lg text-nido-cream bg-black/60 px-4 py-1.5 rounded-lg backdrop-blur-md">Tavola 12, 8:47 pm</div>
+                </div>
+                <div class="gallery-item relative h-[500px] rounded-2xl overflow-hidden group md:-translate-y-12">
+                    <img src="img4.jpg" alt="Late Service" class="w-full h-full object-cover filter grayscale contrast-125 transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105" onerror="this.src='https://placehold.co/800x1000/141414/c5a059?text=Late+Service'">
+                    <div class="absolute bottom-6 left-6 font-editorial italic text-lg text-nido-cream bg-black/60 px-4 py-1.5 rounded-lg backdrop-blur-md">Tuesday, Late Service</div>
+                </div>
+                <div class="gallery-item relative h-[500px] rounded-2xl overflow-hidden group">
+                    <img src="img5.jpg" alt="Cellar" class="w-full h-full object-cover filter grayscale contrast-125 transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105" onerror="this.src='https://placehold.co/800x1000/141414/c5a059?text=Cellar+Selection'">
+                    <div class="absolute bottom-6 left-6 font-editorial italic text-lg text-nido-cream bg-black/60 px-4 py-1.5 rounded-lg backdrop-blur-md">Cantina Subterranea</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 10. Reservation Section -->
+        <section id="reservation" class="relative min-h-screen bg-[#110f0d] text-nido-cream py-32 px-6 flex items-center justify-center">
+            <div class="max-w-4xl mx-auto w-full bg-nido-charcoal/80 border border-nido-gold/20 p-8 md:p-16 rounded-3xl backdrop-blur-xl shadow-2xl">
+                <div class="text-center mb-12">
+                    <span class="text-xs uppercase tracking-[0.3em] text-nido-gold font-semibold">08 · Prenotazioni</span>
+                    <h2 class="font-editorial text-4xl md:text-6xl font-light mt-2">Reserve Your Table</h2>
+                    <p class="font-serif italic text-nido-cream/70 mt-2">Select your party size and evening below.</p>
+                </div>
+
+                <form id="reservation-form" class="space-y-8">
+                    <!-- Party Size Selector -->
+                    <div class="flex flex-col items-center">
+                        <label class="text-xs uppercase tracking-widest text-nido-gold mb-4">Party Size</label>
+                        <div class="flex items-center gap-4">
+                            <button type="button" class="party-btn w-12 h-12 rounded-full border border-nido-gold/40 flex items-center justify-center font-editorial text-xl hover:bg-nido-gold hover:text-nido-dark transition-all active" data-size="2">2</button>
+                            <button type="button" class="party-btn w-12 h-12 rounded-full border border-nido-gold/40 flex items-center justify-center font-editorial text-xl hover:bg-nido-gold hover:text-nido-dark transition-all" data-size="4">4</button>
+                            <button type="button" class="party-btn w-12 h-12 rounded-full border border-nido-gold/40 flex items-center justify-center font-editorial text-xl hover:bg-nido-gold hover:text-nido-dark transition-all" data-size="6">6</button>
+                        </div>
+                    </div>
+
+                    <!-- Date & Time -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs uppercase tracking-widest text-nido-gold mb-2">Evening</label>
+                            <input type="date" class="w-full px-4 py-3 rounded-xl bg-nido-dark border border-white/10 text-nido-cream focus:border-nido-gold outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase tracking-widest text-nido-gold mb-2">Time Slot</label>
+                            <select class="w-full px-4 py-3 rounded-xl bg-nido-dark border border-white/10 text-nido-cream focus:border-nido-gold outline-none">
+                                <option>5:30 PM · Aperitivo</option>
+                                <option>7:00 PM · Prime Seating</option>
+                                <option>8:30 PM · Late Seating (3 tables left)</option>
+                                <option>10:00 PM · Digestivo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3 py-2">
+                        <input type="checkbox" id="celebration" class="w-4 h-4 accent-nido-gold rounded">
+                        <label for="celebration" class="text-sm font-serif italic text-nido-cream/80">Celebrating something special? (Adds a celebratory candle)</label>
+                    </div>
+
+                    <button type="submit" class="w-full py-5 rounded-2xl bg-nido-gold text-nido-dark font-medium uppercase tracking-widest text-xs hover:bg-nido-gold-light transition-all shadow-xl">
+                        Confirm Reservation · Il tavolo è pronto
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 11. Contact Section -->
+        <section id="contact" class="relative min-h-screen bg-nido-cream text-nido-dark py-32 px-6 md:px-20">
+            <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="space-y-8">
+                    <span class="text-xs uppercase tracking-[0.3em] text-nido-gold font-semibold">09 · Dove Siamo</span>
+                    <h2 class="font-editorial text-4xl md:text-6xl font-light">Toronto & Montreal</h2>
+                    
+                    <div class="space-y-6 font-serif text-lg">
+                        <div>
+                            <p class="font-sans text-xs uppercase tracking-widest text-nido-gold mb-1">Toronto Location</p>
+                            <p class="text-nido-dark">482 King Street West, Fashion District</p>
+                            <p class="text-xs text-nido-muted italic">3 minutes from St. Andrew transit stop · Complimentary coat check</p>
+                        </div>
+                        <div>
+                            <p class="font-sans text-xs uppercase tracking-widest text-nido-gold mb-1">Telephone & Concierge</p>
+                            <p id="phone-copy-btn" class="cursor-pointer hover:text-nido-gold transition-colors font-editorial text-2xl">+1 (416) 555-NIDO</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Monochrome Map Mock -->
+                <div class="relative h-[450px] rounded-3xl overflow-hidden border border-nido-dark/10 shadow-xl bg-[#e5decb] flex items-center justify-center">
+                    <div class="absolute inset-0 opacity-40 bg-[radial-gradient(#c5a059_1px,transparent_1px)] [background-size:24px_24px]"></div>
+                    <div class="relative z-10 text-center space-y-3">
+                        <div class="w-12 h-12 rounded-full bg-nido-gold text-nido-dark flex items-center justify-center mx-auto shadow-2xl animate-bounce">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        </div>
+                        <span class="font-editorial text-xl italic font-semibold">Maison Nido Toronto</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 12. Footer -->
+        <footer class="relative bg-nido-dark text-nido-cream py-24 px-6 md:px-20 border-t border-white/10">
+            <div class="max-w-7xl mx-auto flex flex-col justify-between min-h-[400px]">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+                    <div>
+                        <span class="font-editorial text-6xl md:text-8xl lg:text-9xl tracking-tighter uppercase font-light">
+                            Nid<span id="footer-nest-o" class="text-nido-gold inline-block">o</span>
+                        </span>
+                        <p class="font-serif italic text-nido-cream/60 mt-4 max-w-sm">Modern Italian refuge, Canadian terroir. Handcrafted pasta nests served daily.</p>
+                    </div>
+                    <div class="flex flex-col md:items-end space-y-6">
+                        <div class="w-full max-w-md">
+                            <label class="block text-xs uppercase tracking-widest text-nido-gold mb-2">Join the Inner Circle</label>
+                            <div class="flex border-b border-white/20 pb-2">
+                                <input type="email" placeholder="Enter your email address" class="bg-transparent w-full outline-none text-sm text-nido-cream placeholder:text-white/30">
+                                <button class="text-xs uppercase tracking-widest text-nido-gold hover:text-nido-cream transition-colors">Join</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center justify-between border-t border-white/10 pt-8 mt-16 text-xs text-nido-muted uppercase tracking-widest gap-6">
+                    <p>© 2026 Maison Nido Hospitality. All Rights Reserved.</p>
+                    <button id="back-to-top" class="flex items-center gap-2 hover:text-nido-gold transition-colors">
+                        <span>Back to Nest</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            gsap.registerPlugin(ScrollTrigger);
+            ScrollTrigger.config({ ignoreMobileResize: true });
+
+            /* ------------------------------------------------------------
+               Helper: smooth scroll to an in-page anchor (native scrolling)
+            ------------------------------------------------------------ */
+            function scrollToHash(hash) {
+                if (!hash || hash === '#') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                }
+                const target = document.querySelector(hash);
+                if (!target) return;
+                const top = target.getBoundingClientRect().top + window.pageYOffset;
+                window.scrollTo({ top: top, behavior: 'smooth' });
+            }
+
+            /* ------------------------------------------------------------
+               1. Golden Strand — fixed line that draws with scroll progress
+            ------------------------------------------------------------ */
+            const strandSvg = document.getElementById('golden-strand-svg');
+            const svgPath = document.getElementById('strand-path');
+            let strandLength = 0;
+
+            function updateStrand() {
+                const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                const progress = maxScroll > 0 ? Math.min(1, Math.max(0, window.pageYOffset / maxScroll)) : 0;
+                svgPath.style.strokeDashoffset = strandLength * (1 - progress);
+            }
+
+            function buildStrand() {
+                const w = window.innerWidth;
+                const h = window.innerHeight;
+                strandSvg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+                svgPath.setAttribute('d', `M 30 0 C 100 ${h * 0.2}, 20 ${h * 0.4}, 80 ${h * 0.6} S 40 ${h * 0.85}, 500 ${h}`);
+                strandLength = svgPath.getTotalLength();
+                svgPath.style.strokeDasharray = strandLength;
+                updateStrand();
+            }
+            buildStrand();
+            window.addEventListener('scroll', updateStrand, { passive: true });
+            window.addEventListener('resize', buildStrand);
+            ScrollTrigger.addEventListener('refresh', updateStrand);
+
+            /* ------------------------------------------------------------
+               2. Custom Cursor
+            ------------------------------------------------------------ */
+            const cursor = document.getElementById('custom-cursor');
+            gsap.set(cursor, { xPercent: -50, yPercent: -50 });
+
+            window.addEventListener('mousemove', (e) => {
+                gsap.to(cursor, {
+                    x: e.clientX,
+                    y: e.clientY,
+                    duration: 0.15,
+                    ease: 'power2.out',
+                    opacity: 1,
+                    overwrite: 'auto'
+                });
+            });
+
+            /* ------------------------------------------------------------
+               3. Header Collapse on Scroll
+            ------------------------------------------------------------ */
+            const wmAison = document.getElementById('wm-aison');
+            const wmIdo = document.getElementById('wm-ido');
+
+            function updateWordmark() {
+                if (window.pageYOffset > 100) {
+                    wmAison.style.maxWidth = '0px';
+                    wmIdo.style.maxWidth = '0px';
+                    wmAison.style.opacity = '0';
+                    wmIdo.style.opacity = '0';
+                } else {
+                    wmAison.style.maxWidth = '120px';
+                    wmIdo.style.maxWidth = '80px';
+                    wmAison.style.opacity = '1';
+                    wmIdo.style.opacity = '1';
+                }
+            }
+            window.addEventListener('scroll', updateWordmark, { passive: true });
+            updateWordmark();
+
+            /* ------------------------------------------------------------
+               4. Frosted Window Hero Effect
+            ------------------------------------------------------------ */
+            const canvas = document.getElementById('frost-canvas');
+            const ctx = canvas.getContext('2d');
+            let frostW = 0;
+            let frostH = 0;
+
+            function resizeCanvas(force) {
+                const w = window.innerWidth;
+                const h = window.innerHeight;
+                // Avoid re-frosting the glass when mobile browser toolbars show/hide
+                if (!force && w === frostW && Math.abs(h - frostH) < 150) return;
+                frostW = w;
+                frostH = h;
+                canvas.width = w;
+                canvas.height = h;
+                ctx.fillStyle = '#b0b8c0';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.globalCompositeOperation = 'destination-out';
+            }
+            window.addEventListener('resize', () => resizeCanvas(false));
+            resizeCanvas(true);
+
+            function clearFrost(clientX, clientY) {
+                const rect = canvas.getBoundingClientRect();
+                if (clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) return;
+                const x = (clientX - rect.left) * (canvas.width / rect.width);
+                const y = (clientY - rect.top) * (canvas.height / rect.height);
+                ctx.beginPath();
+                ctx.arc(x, y, 90, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Listen on window so the frost also clears beneath the hero text/buttons
+            window.addEventListener('mousemove', (e) => {
+                clearFrost(e.clientX, e.clientY);
+            }, { passive: true });
+            window.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                if (touch) clearFrost(touch.clientX, touch.clientY);
+            }, { passive: true });
+
+            /* ------------------------------------------------------------
+               5. Fullscreen Curtain Menu Toggle
+            ------------------------------------------------------------ */
+            const curtainMenu = document.getElementById('curtain-menu');
+            const menuTrigger = document.getElementById('menu-trigger');
+            const menuClose = document.getElementById('menu-close');
+
+            menuTrigger.addEventListener('click', () => {
+                curtainMenu.classList.remove('-translate-y-full');
+            });
+            menuClose.addEventListener('click', () => {
+                curtainMenu.classList.add('-translate-y-full');
+            });
+            document.querySelectorAll('.menu-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    curtainMenu.classList.add('-translate-y-full');
+                });
+            });
+
+            /* ------------------------------------------------------------
+               6. In-page anchor links (native smooth scrolling)
+            ------------------------------------------------------------ */
+            document.querySelectorAll('a[href^="#"]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    scrollToHash(link.getAttribute('href'));
+                });
+            });
+
+            const floatingSeal = document.getElementById('floating-seal');
+            floatingSeal.addEventListener('click', () => scrollToHash('#reservation'));
+
+            /* ------------------------------------------------------------
+               7. Menu Show Pairings Toggle
+            ------------------------------------------------------------ */
+            const togglePairingsBtn = document.getElementById('toggle-pairings');
+            let pairingsVisible = false;
+            togglePairingsBtn.addEventListener('click', () => {
+                pairingsVisible = !pairingsVisible;
+                document.querySelectorAll('.pairing-note').forEach(note => {
+                    note.style.display = pairingsVisible ? 'block' : 'none';
+                });
+                togglePairingsBtn.textContent = pairingsVisible ? 'Hide Wine Pairings' : 'Show Wine Pairings';
+            });
+
+            /* ------------------------------------------------------------
+               8. Party Size Selectors
+            ------------------------------------------------------------ */
+            const partyButtons = document.querySelectorAll('.party-btn');
+            function selectParty(btn) {
+                partyButtons.forEach(b => b.classList.remove('bg-nido-gold', 'text-nido-dark'));
+                btn.classList.add('bg-nido-gold', 'text-nido-dark');
+            }
+            partyButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    selectParty(btn);
+                });
+            });
+            const defaultParty = document.querySelector('.party-btn.active');
+            if (defaultParty) selectParty(defaultParty);
+
+            /* ------------------------------------------------------------
+               9. Reservation form (prevent page reload / jump to top)
+            ------------------------------------------------------------ */
+            const reservationForm = document.getElementById('reservation-form');
+            reservationForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const submitBtn = reservationForm.querySelector('button[type="submit"]');
+                const originalLabel = submitBtn.textContent;
+                submitBtn.textContent = 'Il tavolo è pronto ✓';
+                setTimeout(() => { submitBtn.textContent = originalLabel; }, 3000);
+            });
+
+            /* ------------------------------------------------------------
+               10. Copy Phone Number Interaction
+            ------------------------------------------------------------ */
+            const phoneBtn = document.getElementById('phone-copy-btn');
+            const phoneOriginalText = phoneBtn.textContent;
+            let phoneTimer = null;
+            phoneBtn.addEventListener('click', async () => {
+                const number = '+14165556436';
+                try {
+                    await navigator.clipboard.writeText(number);
+                } catch (err) {
+                    const helper = document.createElement('textarea');
+                    helper.value = number;
+                    helper.style.position = 'fixed';
+                    helper.style.opacity = '0';
+                    document.body.appendChild(helper);
+                    helper.select();
+                    try { document.execCommand('copy'); } catch (e2) {}
+                    document.body.removeChild(helper);
+                }
+                phoneBtn.textContent = 'Copiato ✓';
+                clearTimeout(phoneTimer);
+                phoneTimer = setTimeout(() => { phoneBtn.textContent = phoneOriginalText; }, 2000);
+            });
+
+            /* ------------------------------------------------------------
+               11. Back to Top Nest Rewind
+            ------------------------------------------------------------ */
+            document.getElementById('back-to-top').addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            /* ------------------------------------------------------------
+               12. Tab Title Change on Blur
+            ------------------------------------------------------------ */
+            const originalTitle = document.title;
+            window.addEventListener('blur', () => {
+                document.title = 'Your table is waiting · Maison Nido';
+            });
+            window.addEventListener('focus', () => {
+                document.title = originalTitle;
+            });
+
+            /* ------------------------------------------------------------
+               SCROLL ANIMATIONS
+               Sections use CSS `position: sticky` for pinning (see the
+               tall section + sticky inner wrapper in the markup). GSAP
+               ScrollTrigger only scrubs animations across each section's
+               scroll range — it does NOT also pin, so the two systems
+               no longer fight each other. Runs after full load so the
+               Tailwind-generated layout (section heights) is final.
+            ------------------------------------------------------------ */
+            function initScrollAnimations() {
+                // Story: ripening words
+                gsap.utils.toArray('.story-word').forEach((word, i) => {
+                    ScrollTrigger.create({
+                        trigger: '#story',
+                        start: `top+=${i * 20} center`,
+                        end: 'bottom center',
+                        onEnter: () => { word.style.opacity = '1'; },
+                        onLeaveBack: () => { word.style.opacity = '0.3'; }
+                    });
+                });
+
+                // Signatures: vertical scroll drives the horizontal track
+                const sigTrack = document.getElementById('signature-track');
+                const sigItems = sigTrack.querySelectorAll('.sig-item');
+                gsap.to(sigTrack, {
+                    x: () => {
+                        const last = sigItems[sigItems.length - 1];
+                        const distance = last.offsetLeft + last.offsetWidth / 2 - window.innerWidth / 2;
+                        return -Math.max(0, distance);
+                    },
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: '#signatures',
+                        start: 'top top',
+                        end: 'bottom bottom',
+                        scrub: 1,
+                        invalidateOnRefresh: true
+                    }
+                });
+
+                // Anatomy of Perfection: exploded layers
+                const anatomyStart = [
+                    { x: 0, y: 0 },
+                    { x: 0, y: -48 },
+                    { x: 128, y: -80 },
+                    { x: -144, y: 80 },
+                    { x: 0, y: 144 }
+                ];
+                gsap.utils.toArray('.anatomy-layer').forEach((layer, i) => {
+                    const start = anatomyStart[i] || { x: 0, y: 0 };
+                    const distance = (i + 1) * 80;
+                    gsap.fromTo(layer,
+                        { x: start.x, y: start.y, scale: 1 },
+                        {
+                            x: start.x,
+                            y: -distance,
+                            scale: 1 + (i * 0.05),
+                            ease: 'none',
+                            scrollTrigger: {
+                                trigger: '#anatomy',
+                                start: 'top top',
+                                end: 'bottom bottom',
+                                scrub: 1
+                            }
+                        }
+                    );
+                });
+
+                // Bar: liquid fill
+                gsap.fromTo('#liquid-fill',
+                    { height: '50%' },
+                    {
+                        height: '85%',
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: '#bar',
+                            start: 'top top',
+                            end: 'bottom bottom',
+                            scrub: 1
+                        }
+                    }
+                );
+
+                // Experience: timeline
+                const timeBadges = [
+                    { time: '5:30 PM · Aperitivo', title: 'The First Pour', desc: 'Sunsets over Toronto skyline, golden hour illumination warming the oak interior, the first negroni poured.' },
+                    { time: '7:00 PM · Antipasti', title: 'Burrata & Crudo', desc: 'Fresh Niagara peaches and Pugliese burrata served under warm chandelier lighting.' },
+                    { time: '8:30 PM · Primi Piatti', title: 'The Nido Ritual', desc: 'Handcrafted tagliatelle nests served with black Umbrian truffle and vintage Barolo.' },
+                    { time: '11:00 PM · Digestivo', title: 'Amaro & Candlelight', desc: 'Deep night ambience, quiet jazz, house-brewed limoncello digestifs.' }
+                ];
+                const timeBadgeEl = document.getElementById('time-badge');
+const timeTitleEl = document.getElementById('time-title');
+const timeDescEl = document.getElementById('time-desc');
+const timelineDisplay = document.getElementById('timeline-display');
+const expImages = gsap.utils.toArray('.exp-bg');
+let currentTimeIndex = -1;
+
+// Start with only the first image visible
+gsap.set(expImages, { opacity: 0 });
+if (expImages[0]) gsap.set(expImages[0], { opacity: 1 });
+
+function setExperience(progress) {
+    const index = Math.min(Math.floor(progress * timeBadges.length), timeBadges.length - 1);
+    if (index === currentTimeIndex) return;
+    currentTimeIndex = index;
+
+    // Swap the text
+    timeBadgeEl.textContent = timeBadges[index].time;
+    timeTitleEl.textContent = timeBadges[index].title;
+    timeDescEl.textContent = timeBadges[index].desc;
+    gsap.fromTo(timelineDisplay,
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out', overwrite: 'auto' }
+    );
+
+    // Crossfade the background image
+    gsap.to(expImages, {
+        opacity: (i) => (i === index ? 1 : 0),
+        duration: 1.2,
+        ease: 'power2.inOut',
+        overwrite: 'auto'
+    });
+
+    // Slow settle-in zoom on the incoming image
+    if (expImages[index]) {
+        gsap.fromTo(expImages[index],
+            { scale: 1.08 },
+            { scale: 1, duration: 3, ease: 'power2.out', overwrite: 'auto' }
+        );
+    }
+}
+
+                ScrollTrigger.create({
+                    trigger: '#experience',
+                    start: 'top top',
+                    end: 'bottom bottom',
+                    onUpdate: (self) => setExperience(self.progress),
+                    onRefresh: (self) => setExperience(self.progress)
+                });
+
+                ScrollTrigger.refresh();
+                if (document.fonts && document.fonts.ready) {
+                    document.fonts.ready.then(() => ScrollTrigger.refresh());
+                }
+            }
+
+            if (document.readyState === 'complete') {
+                initScrollAnimations();
+            } else {
+                window.addEventListener('load', initScrollAnimations);
+            }
+        });
+    </script>
+</body>
+</html>
